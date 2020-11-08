@@ -22,9 +22,6 @@ console.log(`Read ${ecdcData.length} records`);
 const countriesSet = new Set<string>();
 const datesSet = new Set<string>();
 ecdcData.map(data => {
-  if (!countriesSet.has(data.country_code)) {
-    console.log(`| ${data.country_code} | ${data.country} |`);
-  }
   countriesSet.add(data.country_code);
   datesSet.add(data.date);
 });
