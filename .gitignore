@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# IDEs and editors
+.idea/
+
+# misc
+npm-debug.log
+
+# e2e
+e2e/*.js
+e2e/*.map
+
+# System Files
+.DS_Store/
+
+/ecdc-report.json

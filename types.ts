@@ -1,8 +1,9 @@
 export type CountryCode = string;
+export type CountryName = string;
 export type DateString = string;
 
 export interface EcdcRecord {
-  country: string,
+  country: CountryName,
   country_code : CountryCode,
   continent: string,
   population: number,

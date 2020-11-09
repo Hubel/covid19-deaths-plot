@@ -1,9 +1,9 @@
-import { LocalDate } from '@js-joda/core';
+import { DateTimeFormatter, IsoFields, LocalDate } from '@js-joda/core';
 import { readFileSync } from 'fs';
 import { plot, Plot } from 'nodeplotlib';
-import { Config } from './config';
 
-import { CountryCode, DeathCount, EcdcRecord, WeekNumber } from './types';
+import { Config } from './config';
+import { CountryCode, CountryName, DeathCount, EcdcRecord, WeekNumber } from './types';
 
 
 let filename;
@@ -16,14 +16,16 @@ if (process.argv.length >= 3) {
 // Read file
 console.log(`Reading ECDC JSON data from file ${filename}...`);
 const ecdcData: EcdcRecord[] = JSON.parse(readFileSync(filename).toString());
-console.log(`Read ${ecdcData.length} records`);
+console.log(`Read ${ecdcData.length} records\n`);
 
 // Analyse and prepare data set
-const countriesSet = new Set<string>();
+const countriesMap = new Map<CountryCode, CountryName>();
 const datesSet = new Set<string>();
 ecdcData.map(data => {
-  countriesSet.add(data.country_code);
-  datesSet.add(data.date);
+  if (!!data.country_code) {
+    countriesMap.set(data.country_code, data.country);
+    datesSet.add(data.date);
+  }
 });
 
 if (datesSet.size === 0) {
@@ -36,7 +38,7 @@ const startWeek: WeekNumber = Math.max(LocalDate.parse(dates[0]).isoWeekOfWeekye
 const endWeek: WeekNumber = LocalDate.parse(dates[dates.length - 1]).isoWeekOfWeekyear();
 const weekCount = endWeek - startWeek;
 console.log('Data contains');
-console.log(`${countriesSet.size} countries: ${Array.from(countriesSet)}\n`);
+console.log(`${countriesMap.size} countries: ${Array.from(countriesMap.keys())}\n`);
 console.log(`${dates.length} dates: [${dates[0]} ... ${dates[dates.length - 1]}]\n`);
 console.log(`${weekCount} weeks: [${startWeek} ... ${endWeek}]\n\n`);
 
@@ -71,21 +73,26 @@ ecdcData.map(data => {
 // Plot data
 const plotData: Plot[] = [];
 deathsByCountryAndWeeks.forEach((deathsByWeekMap: Map<WeekNumber, DeathCount>, country: CountryCode) => {
-  const x = new Array<WeekNumber>();
-  const y = new Array<DeathCount>();
-  deathsByWeekMap.forEach((week: WeekNumber, deaths: DeathCount) => {
-    x.push(week);
-    y.push(deaths)
+  const weeksWithDate = new Array<string>();
+  const deathsCountsPerWeek = new Array<DeathCount>();
+  deathsByWeekMap.forEach((deaths: DeathCount, week: WeekNumber) => {
+    const weekWithDate = `${week} (${LocalDate.now().with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week).format(DateTimeFormatter.ofPattern('dd-MM'))})`;
+    weeksWithDate.push(weekWithDate);
+    deathsCountsPerWeek.push(deaths)
   });
   const countryPlot: Plot = {
-    x: y,
-    y: x,
-    name: country,
+    x: weeksWithDate,
+    y: deathsCountsPerWeek,
+    name: countriesMap.get(country),
     type: 'line' as any
   }
   plotData.push(countryPlot);
 });
 
-plot(plotData, { title: 'Covid19 related deaths by calendar week in 2020 (source: <a href="https://www.ecdc.europa.eu/en/publications-data/data-national-14-day-notification-rate-covid-19">ECDC</a>)' });
+plot(plotData, {
+  title: 'Covid19 related deaths by calendar week in 2020 (source: <a href="https://www.ecdc.europa.eu/en/publications-data/data-national-14-day-notification-rate-covid-19">ECDC</a>)',
+  xaxis: { title: 'calendar week' },
+  yaxis: { title: 'deaths per 100.000' }
+});
 
 console.log('Generated plot will show up in browser');

@@ -4,6 +4,9 @@ This package uses the data from the _European Centre for Disease Prevention and 
 
 ![Example output (2020-11-06)](./doc/example-plot-2020-11-06.png)
 
+![Example output (autumn 2020)](./doc/example-plot-2020-autumn.png)
+
+
 ## Usage
 
 1. Install [Node.js](nodejs.org) if it is not already installed
