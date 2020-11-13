@@ -1,6 +1,6 @@
 # Covid19 related deaths plot
 
-This package uses the data from the _European Centre for Disease Prevention and Control_ (ECDC) to display a plot of the number deaths (by 100.000 of population) related to Covid19 by country.
+This package uses the data from the _European Centre for Disease Prevention and Control_ ([ECDC](https://www.ecdc.europa.eu/publications-data/data-national-14-day-notification-rate-covid-19)) to display a plot of the number deaths (by 100.000 of population) related to Covid19 by country.
 
 ![Example output (2020-11-06)](./doc/example-plot-2020-11-06.png)
 
